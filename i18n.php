@@ -73,15 +73,20 @@ class i18n extends CompressableExternalModule
 		{
 			include(__SAMSON_I18N_DICT);
 		}
-		$data = \dictionary ();
-		// Пробежимся по локалям в словаре
-		foreach ( $data as $locale => $dict )
-		{
-			// Создадим словарь для локали
-			$this->data[ $locale ] = array();
 		
-			// Преобразуем ключи
-			foreach ( $dict as $k => $v ) $this->data[ $locale ][ (trim($k)) ] = $v;
+		if( function_exists('\dictionary') )
+		{
+			$data = \dictionary ();
+			
+			// Пробежимся по локалям в словаре
+			foreach ( $data as $locale => $dict )
+			{
+				// Создадим словарь для локали
+				$this->data[ $locale ] = array();
+			
+				// Преобразуем ключи
+				foreach ( $dict as $k => $v ) $this->data[ $locale ][ (trim($k)) ] = $v;
+			}
 		}
 	}
 	
