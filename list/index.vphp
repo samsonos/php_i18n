@@ -1,0 +1,4 @@
+<!-- Created by Vitaly Iegorov <egorov@samsonos.com> on 07.03.14 at 12:03 -->
+<ul class="<?php iv('css')?>list">
+    <?php iv('items')?>
+</ul>
