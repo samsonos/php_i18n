@@ -70,18 +70,21 @@ class i18n extends CompressableExternalModule
     /** Controller for rendering generic locales list */
     public function __list()
     {
+        $current = SamsonLocale::current();
+
         // Render all available locales
         $html = '';
         foreach (SamsonLocale::get() as $locale) {
             $html .= $this->view('list/item')
                 ->css(self::CSS_PREFIX)
                 ->locale($locale == SamsonLocale::DEF ? 'ru' : $locale)
+                ->active($locale == $current ? self::CSS_PREFIX.'active':'')
                 ->url($locale)
             ->output();
         }
 
         // Set locale list view
-        $this->view('list/index')->css(self::CSS_PREFIX)->items($html);
+        $this->view('list/index')->locale($current)->css(self::CSS_PREFIX)->items($html);
     }
 
 
@@ -92,7 +95,7 @@ class i18n extends CompressableExternalModule
      * @param string $locale 	Локаль в которую необходимо перевести
      * @return string Переведенная строка или просто значение ключа
      */
-    public function translate( $key, $locale = NULL )
+    public function translate($key, $locale = null)
     {
         // Если требуемая локаль не передана - получим текущую локаль
         if( !isset( $locale ) ) $locale = locale();
