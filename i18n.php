@@ -35,6 +35,8 @@ class i18n extends CompressableExternalModule
 
     /** Коллекция данных для перевода */
     public $dictionary = array( 'ru' => array() );
+	
+	public $requirements = array('core');
 
 
     /** @see \samson\core\ModuleConnector::prepare() */
