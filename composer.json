@@ -1,1 +1,1 @@
-{"name":"samsonos/i18n","author":"Vitaly Iegorov","version":"0.0.1","require":{"samsonos/core":"dev-master"},"license":"Open Software License (OSL) v 3.0","homepage":"http://samsonos.com/"}
+{"name":"samsonos/php_i18n","author":"Vitaly Iegorov","version":"0.0.1","require":{"samsonos/php_core":"*"},"license":"Open Software License (OSL) v 3.0","homepage":"http://samsonos.com/"}
