@@ -79,7 +79,7 @@ class i18n extends CompressableExternalModule
         foreach (SamsonLocale::get() as $locale) {
             $html .= $this->view('list/item')
                 ->css(self::CSS_PREFIX)
-                ->locale($locale == SamsonLocale::DEF ? 'ru' : $locale)
+                ->locale($locale == SamsonLocale::DEF ? 'def' : $locale)
                 ->active($locale == $current ? self::CSS_PREFIX.'active':'')
                 ->url($locale)
             ->output();
