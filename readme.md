@@ -1,5 +1,5 @@
-Auth # SamsonPHP 
+Internalization(i18n) module for [SamsonPHP](http://samsonphp.com) framework
 
-Basic authorization module
+Gives localization functionality(via t() method) and dictionary
 
-egorov@samsonos.com
+Developed by [SamsonOS](http://samsonos.com/)
