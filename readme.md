@@ -76,7 +76,7 @@ And default view template file located at ```app/view/index.php``` who renders c
 
 And if you try to visit URL ```htttp://example.com/ru/test``` you will get ```app/view/ru/test.php``` rendered instead of ```app/view/test.php```.
 
-> The logic is that if system does not find localized view it will use regular view.
+> The logic is: If system does not find localized view it will use regular view.
 
 ## Dictionary localization
 If we don't want to create separate views for every supported locale, as they match each other in HTML markup and only differs in
@@ -121,5 +121,66 @@ So if we have view file(or template view file) ```app/view/test.php``` localized
 ```
 
 And we don't need to create separeta view files for localization.
+
+## Generic rendering of supported locales list
+We have added generic controller action ```list``` for this module to simplify of rendering locale switcher in your web-application.
+In your template view file (or simple view file), for example ```app/view/index.php``` you can use:
+
+```php
+<html>
+    <body>
+        <?php m('i18n')->render('list')?>
+        <?php m()->render()?>
+    </body>
+</html>
+```
+
+This controller action ```list``` will render unordered list of supported locales and special CSS class for styling:
+
+```php
+<html>
+    <body>
+        <ul class="i18n-list">
+            <li class="i18n-locale-def i18n-active">
+            <a href="/" class=""></a>
+        </li><li class="i18n-locale-ru ">
+            <a href="/ru"></a>
+        </li><li class="i18n-locale-fr ">
+            <a href="/fr"></a>
+        </li></ul>
+    </body>
+</html>
+```
+
+This is default LESS example to style this locale switcher file:
+
+```less
+.i18n-list {/* Locale block parent */
+
+  li {/* Locale block container */
+
+    a { /* Locale link for clicking */
+      display: inline-block;
+      width:25px;
+      height:20px;
+      background-repeat: no-repeat;
+      background-position: 50% 50%;
+      font-size:13px;
+
+        /* Locale inner text block */
+      &:before { display:inline-block;  }
+    }
+
+    /** Current active locale class */
+    &.i18n-active {  }
+
+    /** Default locale inner text block class */
+    &.i18n-locale-def a:before { content:"EN"; }
+    /** Supported locale inner text block classes */
+    &.i18n-locale-ru a:before { content:"RU"; }
+    &.i18n-locale-fr a:before {  content:"FR"; }
+  }
+}
+```
 
 Developed by [SamsonOS](http://samsonos.com/)
