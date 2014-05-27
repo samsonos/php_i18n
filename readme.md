@@ -74,8 +74,7 @@ And default view template file located at ```app/view/index.php``` who renders c
 </html>
 ```
 
-And if you try to visit URL ```htttp://example.com/ru/test``` you will get ```app/view/ru/test.php``` rendered instead of
-```app/view/test.php```.
+And if you try to visit URL ```htttp://example.com/ru/test``` you will get ```app/view/ru/test.php``` rendered instead of ```app/view/test.php```.
 
 > The logic is that if system does not find localized view it will use regular view.
 
