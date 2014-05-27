@@ -11,7 +11,7 @@ For adding localization support to your web-application special global function 
 ``` setlocales($locale1, $locale2, ...)```
 
 Where parameters are:
- * ```$locale1 = $locale2 'ru'|'en'|'ko'```, and other supported locales by ```samsonos\core\SamsonLocale```
+ * ```$locale1 = $locale2 = 'ru'|'en'|'ko'```, and other supported locales by ```samsonos\php\core\SamsonLocale```
 
 Usually this function is called in web-application starter script ```index.php``` before ```s()```,
 for example ```index.php```:
