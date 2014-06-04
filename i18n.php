@@ -91,6 +91,38 @@ class i18n extends CompressableExternalModule
 
 
     /**
+     * Create alternate multilingual meta tags
+     */
+    public function __meta()
+    {
+        $current = SamsonLocale::current();
+        // Link tags
+        $link = '';
+        foreach (SamsonLocale::get() as $locale) {
+            if ($locale != $current) {
+                if ($locale == '') {
+                    $lang = 'ru';
+                } else {
+                    $lang = $locale;
+                }
+                $link .= '<link rel="alternate" lang="'.$lang.'" href="'.'http://'.$_SERVER['HTTP_HOST'].'/';
+                if ($current == '') {
+                    $link .= $locale.'/'.url()->text.'">';
+                } else {
+                    if ($locale != '') {
+                        $link .= $locale.'/'.substr(url()->text,strlen($current)+1).'">';
+                    } else {
+                        $link .= substr(url()->text,strlen($current)+1).'">';
+                    }
+                }
+            }
+        }
+        // Set links in view
+        $this->html($link);
+    }
+
+
+    /**
      * Translate(Перевести) фразу
      *
      * @param string $key 		Ключ для поиска перевода фразы

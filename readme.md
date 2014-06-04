@@ -183,4 +183,17 @@ This is default LESS example to style this locale switcher file:
 }
 ```
 
+## Creating multilingual alternate links
+For creating alternate links, that shows, which languages you can get in your web-site, you can use following code:
+
+```php
+<html>
+    <body>
+        <head>
+            <?php m('i18n')->render('meta')?>
+        </head>
+    </body>
+</html>
+```
+
 Developed by [SamsonOS](http://samsonos.com/)
