@@ -80,10 +80,19 @@ class i18n extends CompressableExternalModule
             mkdir($path, 0775, true);
         }
 
+        // If dictionary already exists - get it
+        if (function_exists('\dictionary')) {
+            $keys = \dictionary();
+
+        } else { // Create new dictionary array
+            $keys = array();
+        }
+
         // Collection of keys for translation
-        $keys = array();
         foreach (\samson\core\SamsonLocale::$locales as $locale) {
-            if ($locale != \samson\core\SamsonLocale::DEF) {
+            // If dictionary does not have this locale key
+            if (!isset($keys[$locale]) && $locale != \samson\core\SamsonLocale::DEF) {
+                // Add it
                 $keys[$locale] = array();
             }
         }
