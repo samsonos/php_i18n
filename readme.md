@@ -120,7 +120,16 @@ So if we have view file(or template view file) ```app/view/test.php``` localized
 <h1><?php t('Translate me')?></h1>
 ```
 
-And we don't need to create separeta view files for localization.
+And we don't need to create separate view files for localization.
+
+## Automatic dictionary file generation
+You can use special controller ```/i18n/generate``` to perform automatic creation of dictionary file. By default
+this file will be located at ```app/i18n/dictionary.php```.
+
+When you enter URL ```/i18n/generate``` system automatically scans all your views/controllers/models for pattern matching ```t([key])```
+function and build key value lists for every locale. So you do not have to create this dictionary manually, you add translation function
+to your views/controllers/modules and when finished call ```/i18n/generate``` which will create dictionary file for you, what
+is left to do is fill in the translation for generated keys.
 
 ## Generic rendering of supported locales list
 We have added generic controller action ```list``` for this module to simplify of rendering locale switcher in your web-application.
