@@ -131,6 +131,9 @@ function and build key value lists for every locale. So you do not have to creat
 to your views/controllers/modules and when finished call ```/i18n/generate``` which will create dictionary file for you, what
 is left to do is fill in the translation for generated keys.
 
+> Don't worry to call ```/i18n/generate``` several times, it won't rewrite your existing dictionary file, it will analyze it
+> and add only new keys for translation
+
 ## Generic rendering of supported locales list
 We have added generic controller action ```list``` for this module to simplify of rendering locale switcher in your web-application.
 In your template view file (or simple view file), for example ```app/view/index.php``` you can use:
