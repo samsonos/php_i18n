@@ -35,9 +35,6 @@ class i18n extends CompressableExternalModule
 
     /** Коллекция данных для перевода */
     public $dictionary = array( 'ru' => array() );
-	
-	public $requirements = array('core');
-
 
     /** @see \samson\core\ModuleConnector::prepare() */
     public function prepare()
@@ -68,6 +65,49 @@ class i18n extends CompressableExternalModule
             }
         }
     }
+
+    //[PHPCOMPRESSOR(remove,start)]
+    public function __generate()
+    {
+        s()->async(true);
+
+        // Collection of keys for translation
+        $keys = array();
+        foreach (\samson\core\SamsonLocale::$locales as $locale) {
+            if ($locale != \samson\core\SamsonLocale::DEF) {
+                $keys[$locale] = array();
+            }
+        }
+
+        // Iterate web-application local views
+        foreach (s()->load_stack['local']['views'] as $view) {
+
+            // Find all t('') function calls in view code
+            if(preg_match_all('/\s+t\s*\([\'\"](?<key>[^\"\']+)/', file_get_contents($view), $matches)) {
+                foreach (\samson\core\SamsonLocale::$locales as $locale) {
+                    if ($locale != \samson\core\SamsonLocale::DEF) {
+                        $keys[$locale] = array_merge($keys[$locale], $matches['key']);
+                    }
+                }
+            }
+        }
+
+        // If dictionary path does not exists - create it
+        $path = s()->path().__SAMSON_I18N_PATH;
+        if (!file_exists($path)) {
+            mkdir($path, 0775, true);
+        }
+
+        // Write dictionary file
+        $g = new \samson\core\Generator();
+        $g->deffunction('dictionary')
+            ->newline('return ',2)
+            ->arrayvalue(array_filter($keys))->text(';')
+            ->endfunction()
+        ->write(s()->path().__SAMSON_I18N_DICT);
+
+    }
+    //[PHPCOMPRESSOR(remove,end)]
 
     /** Controller for rendering generic locales list */
     public function __list()
