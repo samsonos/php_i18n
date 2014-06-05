@@ -141,7 +141,7 @@ class i18n extends CompressableExternalModule
                 ->css(self::CSS_PREFIX)
                 ->locale($locale == SamsonLocale::DEF ? 'def' : $locale)
                 ->active($locale == $current ? self::CSS_PREFIX.'active':'')
-                ->url(url_build($locale))
+                ->url(url()->base().$locale)
             ->output();
         }
 
