@@ -51,8 +51,8 @@ class i18n extends CompressableExternalModule
         parent::init();
 
         // Include file with dictionary
-        if (file_exists(__SAMSON_I18N_DICT)) {
-            include(__SAMSON_I18N_DICT);
+        if (file_exists(s()->path().__SAMSON_I18N_DICT)) {
+            include(s()->path().__SAMSON_I18N_DICT);
         }
 
         // If function dictionary exists
