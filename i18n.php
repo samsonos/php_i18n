@@ -67,9 +67,18 @@ class i18n extends CompressableExternalModule
     }
 
     //[PHPCOMPRESSOR(remove,start)]
+    /**
+     * Automatic i18n dictionary file generation
+     */
     public function __generate()
     {
         s()->async(true);
+
+        // If dictionary path does not exists - create it
+        $path = s()->path().__SAMSON_I18N_PATH;
+        if (!file_exists($path)) {
+            mkdir($path, 0775, true);
+        }
 
         // Collection of keys for translation
         $keys = array();
@@ -93,17 +102,11 @@ class i18n extends CompressableExternalModule
                 if(preg_match_all('/\s+t\s*\([\'\"](?<key>[^\"\']+)/', file_get_contents($view), $matches)) {
                     foreach (\samson\core\SamsonLocale::$locales as $locale) {
                         if ($locale != \samson\core\SamsonLocale::DEF) {
-                            $keys[$locale] = array_merge($keys[$locale], $matches['key']);
+                            $keys[$locale] = array_merge($keys[$locale], array_flip($matches['key']));
                         }
                     }
                 }
             }
-        }
-
-        // If dictionary path does not exists - create it
-        $path = s()->path().__SAMSON_I18N_PATH;
-        if (!file_exists($path)) {
-            mkdir($path, 0775, true);
         }
 
         // Write dictionary file
