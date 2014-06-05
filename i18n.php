@@ -79,14 +79,22 @@ class i18n extends CompressableExternalModule
             }
         }
 
-        // Iterate web-application local views
-        foreach (s()->load_stack['local']['views'] as $view) {
+        // File sources for scanning
+        $sources = array(
+            s()->load_stack['local']['views'],
+            s()->load_stack['local']['controllers'],
+            s()->load_stack['local']['models']
+        );
 
-            // Find all t('') function calls in view code
-            if(preg_match_all('/\s+t\s*\([\'\"](?<key>[^\"\']+)/', file_get_contents($view), $matches)) {
-                foreach (\samson\core\SamsonLocale::$locales as $locale) {
-                    if ($locale != \samson\core\SamsonLocale::DEF) {
-                        $keys[$locale] = array_merge($keys[$locale], $matches['key']);
+        // Iterate web-application local views
+        foreach ($sources as $source) {
+            foreach ($source as $view) {
+                // Find all t('') function calls in view code
+                if(preg_match_all('/\s+t\s*\([\'\"](?<key>[^\"\']+)/', file_get_contents($view), $matches)) {
+                    foreach (\samson\core\SamsonLocale::$locales as $locale) {
+                        if ($locale != \samson\core\SamsonLocale::DEF) {
+                            $keys[$locale] = array_merge($keys[$locale], $matches['key']);
+                        }
                     }
                 }
             }
