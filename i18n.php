@@ -204,9 +204,11 @@ class i18n extends CompressableExternalModule
         // Получим хеш строки
         $md5_key = (trim( $key ));
 
-        // Попытаемся найти запись в словаре
-        if( isset( $dict[ $md5_key ] ) ) return $dict[ $md5_key ];
-        // Просто вернем ключ
-        else return $key;
+        // If translation value is available
+        if (isset($dict[$md5_key]) && strlen($dict[$md5_key])) {
+            return $dict[ $md5_key ];
+        } else { // Just return key itself
+            return $key;
+        }
     }
 }
