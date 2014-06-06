@@ -91,7 +91,7 @@ class i18n extends CompressableExternalModule
         // Collection of keys for translation
         foreach (\samson\core\SamsonLocale::$locales as $locale) {
             // If dictionary does not have this locale key
-            if (!isset($keys[$locale]) && $locale != \samson\core\SamsonLocale::DEF) {
+            if (!isset($keys[$locale])) {
                 // Add it
                 $keys[$locale] = array();
             }
@@ -113,7 +113,8 @@ class i18n extends CompressableExternalModule
                     // Find all t('') function calls in view code
                     if(preg_match_all('/\s+t\s*\([\'\"](?<key>[^\"\']+)/', file_get_contents($view), $matches)) {
                         foreach (\samson\core\SamsonLocale::$locales as $locale) {
-                            $keys[$locale] = array_merge($keys[$locale], array_fill_keys($matches['key'], ''));
+                            trace('Merging array for locale '.$locale);
+                            $keys[$locale] = array_merge(array_fill_keys($matches['key'], ''), $keys[$locale]);
                         }
                     }
                 }
