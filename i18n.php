@@ -106,6 +106,7 @@ class i18n extends CompressableExternalModule
 
         // Iterate all loaded modules
         foreach (s()->load_stack as $ns => & $data) {
+            trace($ns);
             // Iterate module supported sources
             foreach ($sources as $source) {
                 // Iterate source files
