@@ -115,7 +115,7 @@ class i18n extends CompressableExternalModule
                     if(preg_match_all('/\s+t\s*\([\'\"](?<key>[^\"\']+)/', file_get_contents($view), $matches)) {
                         foreach (\samson\core\SamsonLocale::$locales as $locale) {
                             trace('Merging array for locale '.$locale);
-                            $keys[$locale] = array_merge(array_fill_keys($matches['key'], ''), $keys[$locale]);
+                            $keys[$locale] = array_merge(array_fill_keys(array_map('addslashes',$matches['key']), ''), $keys[$locale]);
                         }
                     }
                 }
