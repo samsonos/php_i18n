@@ -113,8 +113,6 @@ class i18n extends CompressableExternalModule
                 foreach ($data[$source] as $view) {
                     // Find all t('') function calls in view code
                     if(preg_match_all('/\s+t\s*\([\'\"](?<key>[^\"\']+)/', file_get_contents($view), $matches)) {
-                        trace($matches['key'], true);
-                        trace(array_map('addslashes',$matches['key']), true);
                         foreach (\samson\core\SamsonLocale::$locales as $locale) {
                             trace('Merging array for locale '.$locale);
                             $keys[$locale] = array_merge(array_fill_keys(array_map('addslashes',$matches['key']), ''), $keys[$locale]);
@@ -124,11 +122,19 @@ class i18n extends CompressableExternalModule
             }
         }
 
+        $result = array();
+        foreach ($keys as $locale => $values) {
+            $result[$locale] = array();
+            foreach ($values as $k => $v) {
+                $result[$locale][addslashes($k)] = $v;
+            }
+        }
+
         // Write dictionary file
         $g = new \samson\core\Generator();
         $g->deffunction('dictionary')
             ->newline('return ',2)
-            ->arrayvalue(array_filter($keys))->text(';')
+            ->arrayvalue(array_filter($result))->text(';')
             ->endfunction()
         ->write(s()->path().__SAMSON_I18N_DICT);
 
