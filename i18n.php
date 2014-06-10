@@ -113,6 +113,8 @@ class i18n extends CompressableExternalModule
                 foreach ($data[$source] as $view) {
                     // Find all t('') function calls in view code
                     if(preg_match_all('/\s+t\s*\([\'\"](?<key>[^\"\']+)/', file_get_contents($view), $matches)) {
+                        trace($matches['key'], true);
+                        trace(array_map('addslashes',$matches['key']), true);
                         foreach (\samson\core\SamsonLocale::$locales as $locale) {
                             trace('Merging array for locale '.$locale);
                             $keys[$locale] = array_merge(array_fill_keys(array_map('addslashes',$matches['key']), ''), $keys[$locale]);
