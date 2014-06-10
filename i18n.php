@@ -122,13 +122,16 @@ class i18n extends CompressableExternalModule
             }
         }
 
+        // Escape keys and values
         $result = array();
         foreach ($keys as $locale => $values) {
             $result[$locale] = array();
             foreach ($values as $k => $v) {
-                $result[$locale][addslashes($k)] = $v;
+                $result[$locale][addslashes($k)] = addslashes($v);
             }
         }
+
+        trace($result, true);
 
         // Write dictionary file
         $g = new \samson\core\Generator();
