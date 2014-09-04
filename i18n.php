@@ -61,7 +61,7 @@ class i18n extends CompressableExternalModule
                 $this->data[ $locale ] = array();
 
                 // Преобразуем ключи
-                foreach ( $dict as $k => $v ) $this->data[ $locale ][ (trim($k)) ] = $v;
+                foreach ( $dict as $k => $v ) $this->dictionary[ $locale ][ (trim($k)) ] = $v;
             }
         }
     }
@@ -210,7 +210,7 @@ class i18n extends CompressableExternalModule
         if( !isset( $locale ) ) $locale = locale();
 
         // Получим словарь для нужной локали
-        $dict = & $this->data[ $locale ];
+        $dict = & $this->dictionary[ $locale ];
 
         // Получим хеш строки
         $md5_key = (trim( $key ));
