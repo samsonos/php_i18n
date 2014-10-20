@@ -193,7 +193,7 @@ class i18n extends CompressableExternalModule
                 if ($current == 'ru') {
                     $link .= $locale.'/'.url()->text.'">';
                 } else {
-                    if ($locale != '') {
+                    if ($locale != 'ru') {
                         $link .= $locale.'/'.substr(url()->text,strlen($current)+1).'">';
                     } else {
                         $link .= substr(url()->text,strlen($current)+1).'">';
