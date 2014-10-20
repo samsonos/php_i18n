@@ -180,7 +180,7 @@ class i18n extends CompressableExternalModule
                     $lang = $locale;
                 }
                 $link .= '<link rel="alternate" lang="'.$lang.'" href="'.'http://'.$_SERVER['HTTP_HOST'].'/';
-                if ($current == '') {
+                if ($current == 'ru') {
                     $link .= $locale.'/'.url()->text.'">';
                 } else {
                     if ($locale != '') {
