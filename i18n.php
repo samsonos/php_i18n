@@ -151,11 +151,21 @@ class i18n extends CompressableExternalModule
         // Render all available locales
         $html = '';
         foreach (SamsonLocale::get() as $locale) {
+            if ($current != 'ru') {
+                $urlText = substr(url()->text,strlen($current)+1);
+            } else {
+                $urlText = url()->text;
+            }
+            if ($locale == 'ru') {
+                $url = 'http://'.$_SERVER['HTTP_HOST'].'/'.$urlText;
+            } else {
+                $url = 'http://'.$_SERVER['HTTP_HOST'].'/'.$locale.'/'.$urlText;
+            }
             $html .= $this->view('list/item')
                 ->css(self::CSS_PREFIX)
                 ->locale($locale == SamsonLocale::DEF && SamsonLocale::DEF == ''? 'def' : $locale)
                 ->active($locale == $current ? self::CSS_PREFIX.'active':'')
-                ->url($locale == SamsonLocale::DEF ? url()->base() : url()->base().$locale)
+                ->url($url)
             ->output();
         }
 
