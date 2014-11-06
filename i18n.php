@@ -148,6 +148,12 @@ class i18n extends CompressableExternalModule
     {
         $current = SamsonLocale::current();
 
+        $default = 'ru';
+
+        if (defined('DEFAULT_LOCALE')){
+            $default = DEFAULT_LOCALE;
+        }
+
         // Render all available locales
         $html = '';
         foreach (SamsonLocale::get() as $locale) {
@@ -156,7 +162,7 @@ class i18n extends CompressableExternalModule
             } else {
                 $urlText = url()->text;
             }
-            if ($locale == 'ru') {
+            if ($locale == $default) {
                 $url = 'http://'.$_SERVER['HTTP_HOST'].'/'.$urlText;
             } else {
                 $url = 'http://'.$_SERVER['HTTP_HOST'].'/'.$locale.'/'.$urlText;
