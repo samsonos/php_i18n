@@ -157,7 +157,7 @@ class i18n extends CompressableExternalModule
         // Render all available locales
         $html = '';
         foreach (SamsonLocale::get() as $locale) {
-            if ($current != 'ru') {
+            if ($current != $default) {
                 $urlText = substr(url()->text,strlen($current)+1);
             } else {
                 $urlText = url()->text;
