@@ -268,8 +268,7 @@ class i18n extends CompressableExternalModule
 		$locale = locale();
 
 		// Получим словарь для нужной локали
-		$dict = & $this->dictionary[ $locale ];
-
+		$dict = & $this->plural[ $locale ];
 		// Получим хеш строки
 		$md5_key = (trim( $key ));
 
