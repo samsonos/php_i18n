@@ -19,19 +19,3 @@ function t( $key, $return = false, $locale = NULL )
 	if (!$return)echo $_v->translate( $key, $locale );
 	else return $_v->translate( $key, $locale );
 }
-
-/**
- * Generate corrert plural word form from dictionary
- * @param string $key 	Dictionary key
- * @param string $count Amount for plural form
- * @return string Word in correct plural form
- */
-function plural( $key, $count )
-{
-	// т.к. эта функция вызывается очень часто - создадим статическую переменную
-	static $_v;
-
-	// Если переменная не определена - получим единственный экземпляр ядра
-	if( !isset($_v)) $_v = & m('i18n');
-	return $_v->plural( $key, $count );
-}
