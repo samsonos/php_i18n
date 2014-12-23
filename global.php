@@ -27,15 +27,11 @@ function t( $key, $return = false, $locale = NULL )
  * @return string Word in correct plural form
  */
 function plural( $key, $count )
-{	
-	$dict = & $GLOBALS['dict_plural'][ $key ];
-	if( isset($dict)) switch($count % 20)
-	{
-		case 1: return $dict[0]; break;
-		case 2:
-		case 3:
-		case 4:	return $dict[1]; break;
-		default: return $dict[2]; break;
-	}
-	else return $key;	
+{
+	// т.к. эта функция вызывается очень часто - создадим статическую переменную
+	static $_v;
+
+	// Если переменная не определена - получим единственный экземпляр ядра
+	if( !isset($_v)) $_v = & m('i18n');
+	return $_v->plural( $key, $count );
 }

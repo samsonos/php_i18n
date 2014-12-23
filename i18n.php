@@ -10,6 +10,9 @@ if(!defined('__SAMSON_I18N_PATH'))  define('__SAMSON_I18N_PATH', __SAMSON_APP_PA
 /** Стандартный путь главному словарю сайта */
 if(!defined('__SAMSON_I18N_DICT'))  define('__SAMSON_I18N_DICT', __SAMSON_I18N_PATH.'/dictionary.php' );
 
+/** Стандартный путь главному словарю сайта */
+if(!defined('__SAMSON_I18N_PLURAL'))  define('__SAMSON_I18N_PLURAL', __SAMSON_I18N_PATH.'/plural.php' );
+
 /**
  * Интернализация / Локализация
  *
@@ -36,6 +39,9 @@ class i18n extends CompressableExternalModule
     /** Коллекция данных для перевода */
     public $dictionary = array( 'ru' => array() );
 
+	/** Коллекция данных для перевода */
+	public $plural = array( 'ru' => array() );
+
     /** @see \samson\core\ModuleConnector::prepare() */
     public function prepare()
     {
@@ -52,18 +58,36 @@ class i18n extends CompressableExternalModule
             include(s()->path().__SAMSON_I18N_DICT);
         }
 
+	    // Include file with dictionary
+	    if (file_exists(s()->path().__SAMSON_I18N_PLURAL)) {
+		    include(s()->path().__SAMSON_I18N_PLURAL);
+	    }
+
         // If function dictionary exists
         if (function_exists('\dictionary')) {
 
             // Пробежимся по локалям в словаре
             foreach (\dictionary() as $locale => $dict ) {
                 // Создадим словарь для локали
-                $this->data[ $locale ] = array();
+                $this->dictionary[ $locale ] = array();
 
                 // Преобразуем ключи
                 foreach ( $dict as $k => $v ) $this->dictionary[ $locale ][ (trim($k)) ] = $v;
             }
         }
+
+	    // If function dictionary exists
+	    if (function_exists('\plural')) {
+
+		    // Пробежимся по локалям в словаре
+		    foreach (\plural() as $locale => $dict ) {
+			    // Создадим словарь для локали
+			    $this->plural[ $locale ] = array();
+
+			    // Преобразуем ключи
+			    foreach ( $dict as $k => $v ) $this->plural[ $locale ][ (trim($k)) ] = $v;
+		    }
+	    }
     }
 
     //[PHPCOMPRESSOR(remove,start)]
@@ -237,4 +261,31 @@ class i18n extends CompressableExternalModule
             return $key;
         }
     }
+
+	public function plural($key, $count)
+	{
+		// Если требуемая локаль не передана - получим текущую локаль
+		$locale = locale();
+
+		// Получим словарь для нужной локали
+		$dict = & $this->dictionary[ $locale ];
+
+		// Получим хеш строки
+		$md5_key = (trim( $key ));
+
+		// If translation value is available
+		if (isset($dict[$md5_key]) && (sizeof($dict[$md5_key]) == 3)) {
+			switch($count % 20)
+			{
+				case 1: return $dict[$md5_key][0]; break;
+				case 2:
+				case 3:
+				case 4:	return $dict[$md5_key][1]; break;
+				default: return $dict[$md5_key][2]; break;
+			}
+			return $dict[ $md5_key ];
+		} else { // Just return key itself
+			return $key;
+		}
+	}
 }
