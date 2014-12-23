@@ -77,10 +77,10 @@ class i18n extends CompressableExternalModule
         }
 
 	    // If function dictionary exists
-	    if (function_exists('\plural')) {
+	    if (function_exists('\pluralList')) {
 
 		    // Пробежимся по локалям в словаре
-		    foreach (\plural() as $locale => $dict ) {
+		    foreach (\pluralList() as $locale => $dict ) {
 			    // Создадим словарь для локали
 			    $this->plural[ $locale ] = array();
 
