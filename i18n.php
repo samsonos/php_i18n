@@ -225,7 +225,7 @@ class i18n extends CompressableExternalModule
                 if ($locale == '') {
                     $lang = 'ru';
                 } else {
-                    $lang = $locale;
+                    $lang = ($locale != 'ua') ? $locale : 'uk';
                 }
                 $link .= '<link rel="alternate" lang="'.$lang.'" href="'.'http://'.$_SERVER['HTTP_HOST'].'/';
                 if ($current == 'ru') {
