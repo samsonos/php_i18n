@@ -36,6 +36,9 @@ class i18n extends CompressableExternalModule
     /** Путь к файлу словаря */
     public $path;
 
+	/** Выводить текст ссылки в список */
+	public $isLocaleLinkText = false;
+
     /** Коллекция данных для перевода */
     public $dictionary = array( 'ru' => array() );
 
@@ -191,11 +194,16 @@ class i18n extends CompressableExternalModule
             } else {
                 $url = 'http://'.$_SERVER['HTTP_HOST'].'/'.$locale.'/'.$urlText;
             }
+	        $localeName = '';
+	        if ($this->isLocaleLinkText) {
+		        $localeName = $this->translate($locale, $current);
+	        }
             $html .= $this->view('list/item')
                 ->css(self::CSS_PREFIX)
                 ->locale($locale == SamsonLocale::DEF && SamsonLocale::DEF == ''? 'def' : $locale)
                 ->active($locale == $current ? self::CSS_PREFIX.'active':'')
                 ->url($url)
+	            ->name($localeName)
             ->output();
         }
 
