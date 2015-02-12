@@ -185,14 +185,14 @@ class i18n extends CompressableExternalModule
         $html = '';
         foreach (SamsonLocale::get() as $locale) {
             if ($current != $default) {
-                $urlText = substr(url()->text,strlen($current)+1);
+                $urlText = substr(str_replace($_SERVER['HTTP_ORIGIN'], '', $_SERVER['HTTP_REFERER']),strlen($current)+1);
             } else {
-                $urlText = url()->text;
+                $urlText = str_replace($_SERVER['HTTP_ORIGIN'], '', $_SERVER['HTTP_REFERER']);
             }
             if ($locale == $default) {
-                $url = 'http://'.$_SERVER['HTTP_HOST'].'/'.$urlText;
+                $url = 'http://'.$_SERVER['HTTP_HOST'].$urlText;
             } else {
-                $url = 'http://'.$_SERVER['HTTP_HOST'].'/'.$locale.'/'.$urlText;
+                $url = 'http://'.$_SERVER['HTTP_HOST'].'/'.$locale.$urlText;
             }
 	        $localeName = '';
 	        if ($this->isLocaleLinkText) {
