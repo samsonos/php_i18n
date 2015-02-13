@@ -190,9 +190,9 @@ class i18n extends CompressableExternalModule
                 $urlText = str_replace($_SERVER['HTTP_ORIGIN'], '', $_SERVER['HTTP_REFERER']);
             }
             if ($locale == $default) {
-                $url = 'http://'.$_SERVER['HTTP_HOST'].$urlText;
+                $url = 'http://'.$_SERVER['HTTP_HOST'].substr(__SAMSON_BASE__,0, -1).$urlText;
             } else {
-                $url = 'http://'.$_SERVER['HTTP_HOST'].'/'.$locale.$urlText;
+                $url = 'http://'.$_SERVER['HTTP_HOST'].__SAMSON_BASE__.$locale.$urlText;
             }
 	        $localeName = '';
 	        if ($this->isLocaleLinkText) {
