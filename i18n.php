@@ -3,6 +3,7 @@ namespace samson\i18n;
 
 use samson\core\CompressableExternalModule;
 use samson\core\SamsonLocale;
+use samsonphp\event\Event;
 
 /** Стандартный путь к папке со словарями */
 if(!defined('__SAMSON_I18N_PATH'))  define('__SAMSON_I18N_PATH', __SAMSON_APP_PATH.'/i18n' );
@@ -181,18 +182,23 @@ class i18n extends CompressableExternalModule
             $default = DEFAULT_LOCALE;
         }
 
+	    $urlText = url()->text;
+	    $httpHost = $_SERVER['HTTP_HOST'];
+	    Event::fire('i18n.list.generating', array(& $httpHost, & $urlText));
+
         // Render all available locales
         $html = '';
         foreach (SamsonLocale::get() as $locale) {
-            if ($current != $default) {
-                $urlText = substr(url()->text,strlen($current)+1);
+	        if ($current != $default) {
+	            $currentUrlText = substr($urlText,strlen($current)+1);
             } else {
-                $urlText = url()->text;
+	            $currentUrlText = $urlText;
             }
+
             if ($locale == $default) {
-                $url = 'http://'.$_SERVER['HTTP_HOST'].__SAMSON_BASE__.$urlText;
+                $url = 'http://'.$httpHost.__SAMSON_BASE__.$currentUrlText;
             } else {
-                $url = 'http://'.$_SERVER['HTTP_HOST'].__SAMSON_BASE__.$locale.'/'.$urlText;
+                $url = 'http://'.$httpHost.__SAMSON_BASE__.$locale.'/'.$currentUrlText;
             }
 	        $localeName = '';
 	        if ($this->isLocaleLinkText) {
