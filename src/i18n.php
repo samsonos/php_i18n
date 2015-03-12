@@ -48,8 +48,7 @@ class i18n extends CompressableService
         /** @var \samson\core\Module $module Iterate all loaded core modules */
         foreach (self::$instances as $module) {
             // Iterate all module PHP files
-            foreach($module->resourceMap->classes as $path => $className){
-                trace($path);
+            foreach ($module->resourceMap->classes as $path => $className) {
                 // Check if file name matches dictionary pattern
                 if (preg_match(self::DICTIONARY_PATTERN, $path)) {
                     // Include new file that we think has a dictionary class
@@ -71,9 +70,6 @@ class i18n extends CompressableService
                 }
             }
         }
-
-        var_dump($this->dictionary);
-        die;
     }
 
     //[PHPCOMPRESSOR(remove,start)]
@@ -203,56 +199,65 @@ class i18n extends CompressableService
         $this->html($link);
     }
 
+    /**
+     * @param $key
+     * @param null $locale
+     */
+    protected function & findDictionary(& $key, $locale = null)
+    {
+        // If no locale for translation is specified - use current system locale
+        $locale = !isset( $locale ) ? locale() : $locale;
+
+        // Remove whitespaces from key
+        $key = trim($key);
+
+        // Get pointer to locale dictionary
+        return  $this->dictionary[$locale];
+    }
 
     /**
      * Translate(Перевести) фразу
      *
-     * @param string $key 		Ключ для поиска перевода фразы
-     * @param string $locale 	Локаль в которую необходимо перевести
-     * @return string Переведенная строка или просто значение ключа
+     * @param string $key Key for pluralization and translation
+     * @param string $locale Locale to use for translation
+     * @return string Translated key
      */
     public function translate($key, $locale = null)
     {
-        // Если требуемая локаль не передана - получим текущую локаль
-        if( !isset( $locale ) ) $locale = locale();
+        // Retrieve dictionary by locale and modify key
+        $dict = $this->findDictionary($key, $locale);
 
-        // Получим словарь для нужной локали
-        $dict = & $this->dictionary[ $locale ];
-
-        // Получим хеш строки
-        $md5_key = (trim( $key ));
-
-        // If translation value is available
-        if (isset($dict[$md5_key]) && strlen($dict[$md5_key])) {
-            return $dict[ $md5_key ];
-        } else { // Just return key itself
-            return $key;
-        }
+        // If translation value or just a key
+        return isset($dict[$key]{0}) ? $dict[$key] : $key;
     }
 
-    public function plural($key, $count)
+    /**
+     * Perform pluralization and translation of key
+     * @param string $key Key for pluralization and translation
+     * @param int $count Key quantity for pluralization
+     * @param string $locale Locale to use for translation
+     * @return string Pluralized and translated key
+     */
+    public function plural($key, $count, $locale = null)
     {
-        // Если требуемая локаль не передана - получим текущую локаль
-        $locale = locale();
+        // Retrieve dictionary by locale and modify key
+        $dict = $this->findDictionary($key, $locale);
 
-        // Получим словарь для нужной локали
-        $dict = & $this->plural[ $locale ];
-        // Получим хеш строки
-        $md5_key = (trim( $key ));
-
+        $translation = & $dict[$key];
         // If translation value is available
-        if (isset($dict[$md5_key]) && (sizeof($dict[$md5_key]) == 3)) {
-            switch($count % 20)
-            {
-                case 1: return $dict[$md5_key][0]; break;
+        if (isset($translation) && (sizeof($translation) == 3)) {
+            switch ($count % 20) {
+                case 1:
+                    return $translation[0];
                 case 2:
                 case 3:
-                case 4:	return $dict[$md5_key][1]; break;
-                default: return $dict[$md5_key][2]; break;
+                case 4:
+                    return $translation[1];
+                default:
+                    return $translation[2];
             }
-            return $dict[ $md5_key ];
-        } else { // Just return key itself
-            return $key;
         }
+        // No plural form is found - just return key
+        return $key;
     }
 }

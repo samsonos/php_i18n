@@ -1,21 +1,29 @@
 <?php
-use Samson\i18n\i18n;
+use samsonphp\i18n\i18n;
+
 /**
  * Translate(Перевести) фразу
  *
- * @param string $key 		Ключ для поиска перевода фразы
- * @param string $locale 	Локаль в которую необходимо перевести
- * @return string Переведенная строка или просто значение ключа
+ * @param string    $key 		Key to search for localization
+ * @param bool      $return 	If true - output will be return, otherwise echoed
+ * @param int       $count 	    Locale to use for translation
+ * @param string    $locale 	Locale to use for translation
+ * @return string Localized $key or itself if translation not found
  */
-function t( $key, $return = false, $locale = NULL )
+function t($key, $return = false, $count = -1, $locale = null)
 {
-	// т.к. эта функция вызывается очень часто - создадим статическую переменную
-	static $_v;
+    /** @var \samsonphp\i18n\i18n $pointer  Pointer to cached i18n module */
+    static $pointer;
 
-	// Если переменная не определена - получим единственный экземпляр ядра
-	if( !isset($_v)) $_v = & m('i18n');	
+    // Store pointer
+    $pointer = !isset($pointer) ? m('i18n') : $pointer;
 
-	// Вернем указатель на ядро системы
-	if (!$return)echo $_v->translate( $key, $locale );
-	else return $_v->translate( $key, $locale );
+
+    // Perform translation
+    $translation = ($count === -1)
+        ? $pointer->translate($key, $locale)
+        : $pointer->plural($key, $count, $locale);
+
+    // Echo or return dependently on params
+    return (!$return) ? print($translation) : $translation;
 }
