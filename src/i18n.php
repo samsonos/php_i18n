@@ -37,6 +37,8 @@ class i18n extends CompressableService
     /** Коллекция данных для перевода */
     public $dictionary = array( 'en' => array() );
 
+    protected $moduleDictionary;
+
     /** @deprecated Now one single collection is used */
     public $plural = array( 'en' => array() );
 
@@ -44,9 +46,9 @@ class i18n extends CompressableService
     public function init(array $params = array())
     {
         parent::init();
-
         /** @var \samson\core\Module $module Iterate all loaded core modules */
         foreach (self::$instances as $module) {
+
             // Iterate all module PHP files
             foreach ($module->resourceMap->classes as $path => $className) {
                 // Check if file name matches dictionary pattern
@@ -61,15 +63,21 @@ class i18n extends CompressableService
                         // Iterate dictionary key => value localization data
                         foreach ($dictionary->getDictionary() as $locale => $dict) {
                             // Gather every dictionary in  one collection grouped by locale
-                            $this->dictionary[$locale] = array_merge(
+                            $this->moduleDictionary[$module->id][$locale] = $dict;
+
+                            $collection = array_merge(
                                 isset($this->dictionary[$locale]) ? $this->dictionary[$locale] : array(),
                                 $dict
                             );
+
+                            $this->dictionary[$locale] = $collection;
                         }
                     }
                 }
             }
         }
+
+
     }
 
     //[PHPCOMPRESSOR(remove,start)]
@@ -79,47 +87,91 @@ class i18n extends CompressableService
     public function __generate()
     {
         s()->async(true);
-        $sources = array(
-            'views',
-            'controllers',
-            'models'
-        );
-
+        // Get all active locales
         foreach (\samson\core\SamsonLocale::$locales as $locale) {
             $keys[$locale] = array();
         }
 
         foreach (self::$instances as $module) {
             $modulePath = $module->resourceMap->entryPoint;
-            $dictionaryPath = $modulePath.'i18n';
-            if (!file_exists($dictionaryPath) && is_writable($modulePath)) {
-                mkdir($dictionaryPath, 0775, true);
-                fopen($dictionaryPath.'/Dictionary.php', "w+");
-                trace('Generated:'.$dictionaryPath);
-                foreach($sources as $source){
-                    foreach ($module->resourceMap->$source as $view) {
-                        // Find all t('') function calls in view code
-                        $result = $keys;
-                        if(preg_match_all('/\s+t\s*\([\'\"](?<key>[^\"\']+)/', file_get_contents($view), $matches)) {
-
-                            foreach($keys as $k=>$v){
-                                $result[$k] = array_merge(array_fill_keys(array_map('addslashes',$matches['key']), ''), $result[$k]);
+            if (strpos($modulePath, '/vendor/') === false) {
+                $sources = $this->getModuleResources($module);
+                $result = array();
+                $sourceMatches = array();
+                foreach ($sources as $source){
+                    // Find all t('') function calls in view code
+                    if(preg_match_all('/\s+t\s*\(\s*[\'\"](?<key>[^\"\']+)[\'\"](,\s*(false|true)\s*,\s*(?<plural>\d+))?/', file_get_contents($source), $matches)) {
+                        $matchesArray = array_combine($matches['key'], $matches['plural']);
+                        foreach($matchesArray as $key=>$value){
+                            if(!empty($value)){
+                                $matchesArray[$key] = array('', '', '');
                             }
                         }
+                        foreach($keys as $locale=>$value){
+                            $sourceMatches[$locale] = $matchesArray;
+                        }
+                        $path = $modulePath.$this->id;
                     }
+                    $result = array_replace_recursive($sourceMatches, $result);
                 }
-                $g = new \samson\core\Generator($module->id."\\".'i18n');
-                $g->defclass('Dictionary', null, array('\samson\i18n\IDictionary'))
-                        ->deffunction('getDictionary')
-                            ->newline('return ', 2)
-                            ->arrayvalue(array_filter($result))->text(';')
-                        ->endfunction()
-                    ->endclass()
-                    ->write($dictionaryPath.'/Dictionary.php');
+                if(isset($this->moduleDictionary[$module->id]) && is_array($this->moduleDictionary[$module->id])){
+                    $final = array_replace_recursive($result, $this->moduleDictionary[$module->id]);
+                } else {
+                    $final = $result;
+                }
+                trace('Generated module: '. $module->id);
+                $this->createDictionary($module->id, $final, $path);
+
             }
         }
+
     }
     //[PHPCOMPRESSOR(remove,end)]
+    /**
+     * @param string $moduleId
+     * @param array  $result
+     * @param string $dictionaryPath
+     */
+    protected function createDictionary($moduleId, $result, $dictionaryPath)
+    {
+        if(file_exists($dictionaryPath.'/Dictionary.php')){
+            unlink($dictionaryPath.'/Dictionary.php');
+            rmdir($dictionaryPath);
+        }
+        mkdir($dictionaryPath, 0775);
+        fopen($dictionaryPath.'/Dictionary.php', "w+");
+            $generator = new \samson\core\Generator($moduleId."\\".'i18n');
+            $generator->defclass('Dictionary', null, array('\samsonphp\i18n\IDictionary'))
+                    ->deffunction('getDictionary')
+                        ->newline('return ', 2)
+                        ->arrayvalue(array_filter($result))->text(';')
+                    ->endfunction()
+                ->endclass()
+                ->write($dictionaryPath.'/Dictionary.php');
+    }
+
+    protected function getModuleResources($module)
+    {
+        $sources = array(
+            'views',
+            'controllers',
+            'models',
+            'php',
+            'module'
+        );
+        $resources = array();
+        foreach ($sources as $source){
+            foreach ($module->resourceMap->$source as $resource) {
+                if($source == 'module'){
+                    $v = $module->resourceMap->$source;
+                    $resources[] = $v[1];
+                    break;
+                }
+                $resources[] = $resource;
+            }
+        }
+        return $resources;
+    }
 
     /** Controller for rendering generic locales list */
     public function __list()
@@ -245,7 +297,7 @@ class i18n extends CompressableService
 
         $translation = & $dict[$key];
         // If translation value is available
-        if (isset($translation) && (sizeof($translation) == 3)) {
+        if (isset($translation) && (sizeof($translation) == 3) && !empty($translation[0])) {
             switch ($count % 20) {
                 case 1:
                     return $translation[0];
@@ -258,6 +310,7 @@ class i18n extends CompressableService
             }
         }
         // No plural form is found - just return key
+
         return $key;
     }
 }
