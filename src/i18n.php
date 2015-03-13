@@ -37,6 +37,9 @@ class i18n extends CompressableService
     /** Коллекция данных для перевода */
     public $dictionary = array( 'en' => array() );
 
+    /** Regex pattern for search all matches */
+    protected $patternSearch = '/\s+t\s*\(\s*[\'\"](?<key>[^\"\']+)[\'\"](,\s*(false|true)\s*,\s*(?<plural>\d+))?/';
+
     protected $moduleDictionary;
 
     /** @deprecated Now one single collection is used */
@@ -104,7 +107,7 @@ class i18n extends CompressableService
                 // Iterate sources files
                 foreach ($sources as $source){
                     // Find all t('') function calls in view code
-                    if (preg_match_all('/\s+t\s*\(\s*[\'\"](?<key>[^\"\']+)[\'\"](,\s*(false|true)\s*,\s*(?<plural>\d+))?/',file_get_contents($source),$matches)) {
+                    if (preg_match_all($this->patternSearch, file_get_contents($source), $matches)) {
                         // Combine key and plural array
                         $matchesArray = array_combine($matches['key'], $matches['plural']);
                         // If plural not empty, created 3 field for translated
