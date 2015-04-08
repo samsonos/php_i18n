@@ -5,10 +5,6 @@ use samson\core\CompressableService;
 use samson\core\SamsonLocale;
 use samsonphp\event\Event;
 
-/** Стандартный путь к папке со словарями */
-if (!defined('__SAMSON_I18N_PATH')) {
-    define('__SAMSON_I18N_PATH', __SAMSON_APP_PATH.'/i18n' );
-}
 
 /**
  * Localization \ Internalization service
@@ -51,7 +47,6 @@ class i18n extends CompressableService
         parent::init();
         /** @var \samson\core\Module $module Iterate all loaded core modules */
         foreach (self::$instances as $module) {
-
             // Iterate all module PHP files
             foreach ($module->resourceMap->classes as $path => $className) {
                 // Check if file name matches dictionary pattern
@@ -77,8 +72,6 @@ class i18n extends CompressableService
                 }
             }
         }
-
-
     }
 
     //[PHPCOMPRESSOR(remove,start)]
@@ -100,12 +93,12 @@ class i18n extends CompressableService
             if (strpos($modulePath, '/vendor/') === false) {
                 // Source files for search t('')
                 $sources = $this->getModuleResources($module);
-                // All matches source
+                // All matches in source
                 $sourceMatches = array();
-                // All matches module
+                // All matches in module
                 $result = array();
                 // Iterate sources files
-                foreach ($sources as $source){
+                foreach ($sources as $source) {
                     // Find all t('') function calls in view code
                     if (preg_match_all($this->patternSearch, file_get_contents($source), $matches)) {
                         // Combine key and plural array
@@ -131,7 +124,7 @@ class i18n extends CompressableService
                     $final = $result;
                 }
 
-                trace('Generated module: '. $module->id);
+                trace('Generated dictionary for module: '. $module->id);
                 // Created dictionary file
                 $path = $modulePath.$this->id;
                 $this->createDictionary($module->id, $final, $path);
@@ -145,7 +138,7 @@ class i18n extends CompressableService
      * @param array  $result
      * @param string $dictionaryPath
      */
-    protected function createDictionary($moduleId, $result, $dictionaryPath)
+    public function createDictionary($moduleId, $result, $dictionaryPath)
     {
         if (file_exists($dictionaryPath.'/Dictionary.php')) {
             unlink($dictionaryPath.'/Dictionary.php');
@@ -153,21 +146,22 @@ class i18n extends CompressableService
         }
         mkdir($dictionaryPath, 0775);
         fopen($dictionaryPath.'/Dictionary.php', "w+");
-            $generator = new \samson\core\Generator($moduleId."\\".'i18n');
-            $generator->defclass('Dictionary', null, array('\samsonphp\i18n\IDictionary'))
-                    ->deffunction('getDictionary')
-                        ->newline('return ', 2)
-                        ->arrayvalue(array_filter($result))->text(';')
-                    ->endfunction()
-                ->endclass()
-                ->write($dictionaryPath.'/Dictionary.php');
+
+        $generator = new \samson\core\Generator($moduleId."\\".'i18n');
+        $generator->defclass('Dictionary', null, array('\samsonphp\i18n\IDictionary'))
+            ->deffunction('getDictionary')
+            ->newline('return ', 2)
+            ->arrayvalue(array_filter($result))->text(';')
+            ->endfunction()
+            ->endclass()
+            ->write($dictionaryPath.'/Dictionary.php');
     }
 
     /**
      * @param \samson\core\Module $module
      * @return array Patches sources files
      */
-    protected function getModuleResources($module)
+     public function getModuleResources($module)
     {
         $sources = array(
             'views',
@@ -188,6 +182,7 @@ class i18n extends CompressableService
             }
         }
         return $resources;
+
     }
 
     /** Controller for rendering generic locales list */
@@ -209,7 +204,7 @@ class i18n extends CompressableService
         $html = '';
         foreach (SamsonLocale::get() as $locale) {
             if ($current != $default) {
-                $currentUrlText = substr($urlText,strlen($current)+1);
+                $currentUrlText = substr($urlText, strlen($current)+1);
             } else {
                 $currentUrlText = $urlText;
             }
@@ -257,9 +252,9 @@ class i18n extends CompressableService
                     $link .= $locale.'/'.url()->text.'">';
                 } else {
                     if ($locale != 'ru') {
-                        $link .= $locale.'/'.substr(url()->text,strlen($current)+1).'">';
+                        $link .= $locale.'/'.substr(url()->text, strlen($current)+1).'">';
                     } else {
-                        $link .= substr(url()->text,strlen($current)+1).'">';
+                        $link .= substr(url()->text, strlen($current)+1).'">';
                     }
                 }
             }
