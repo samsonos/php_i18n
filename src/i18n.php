@@ -5,7 +5,6 @@ use samson\core\CompressableService;
 use samson\core\SamsonLocale;
 use samsonphp\event\Event;
 
-
 /**
  * Localization \ Internalization service
  *
@@ -41,7 +40,7 @@ class i18n extends CompressableService
     /** @deprecated Now one single collection is used */
     public $plural = array( 'en' => array() );
 
-    /** @see \samson\core\ModuleConnector::init() */
+    /** {@inheritdoc} */
     public function init(array $params = array())
     {
         parent::init();
@@ -49,6 +48,7 @@ class i18n extends CompressableService
         foreach (self::$instances as $module) {
             // Iterate all module PHP files
             foreach ($module->resourceMap->classes as $path => $className) {
+//                var_dump($path);
                 // Check if file name matches dictionary pattern
                 if (preg_match(self::DICTIONARY_PATTERN, $path)) {
                     // Include new file that we think has a dictionary class
@@ -82,7 +82,7 @@ class i18n extends CompressableService
     {
         s()->async(true);
         // Get all active locales
-        foreach (\samson\core\SamsonLocale::$locales as $locale) {
+        foreach (SamsonLocale::$locales as $locale) {
             $keys[$locale] = array();
         }
         // Iterate all module PHP files
@@ -161,7 +161,7 @@ class i18n extends CompressableService
      * @param \samson\core\Module $module
      * @return array Patches sources files
      */
-     public function getModuleResources($module)
+    public function getModuleResources($module)
     {
         $sources = array(
             'views',
@@ -182,7 +182,6 @@ class i18n extends CompressableService
             }
         }
         return $resources;
-
     }
 
     /** Controller for rendering generic locales list */

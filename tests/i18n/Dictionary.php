@@ -1,8 +1,11 @@
 <?php
 namespace i18n\i18n;
 
-class Dictionary implements \samsonphp\i18n\IDictionary	{
-    function getDictionary()
+use samsonphp\i18n\IDictionary;
+
+class Dictionary implements IDictionary
+{
+    public function getDictionary()
     {
         return array(
             "en"	=>array(
@@ -23,5 +26,4 @@ class Dictionary implements \samsonphp\i18n\IDictionary	{
             ),
         );
     }
-
 }

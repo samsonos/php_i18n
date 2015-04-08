@@ -20,9 +20,9 @@
     "autoload" : {
         "classmap": ["src/"],
         "psr-0": {
-            "samsonphp\\composer\\": "src/"
-        }
-
+            "samsonphp\\i18n\\": "src/"
+        },
+        "files": ["src/global.php"]
     }
 
 }
