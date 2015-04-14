@@ -93,25 +93,19 @@ class i18n extends CompressableService
                 $cachedDictionary,
                 '<?php function php_i18n_dictionary() { return ' . var_export($this->dictionary, true). ';}'
             );
-        }
+        } else {
+            // Load generated dictionary
+            require $cachedDictionary;
 
-        // Load generated dictionary
-        require $cachedDictionary;
+            // Call generated dictionary function
+            if (function_exists('php_i18n_dictionary')) {
+                $this->dictionary = php_i18n_dictionary();
+            }
+        }
     }
     //[PHPCOMPRESSOR(remove,end)]
 
-    /** {@inheritdoc} */
-    public function init(array $params = array())
-    {
-        parent::init();
-
-        // Call generated dictionary function
-        if (function_exists('php_i18n_dictionary')) {
-            $this->dictionary = php_i18n_dictionary();
-        }
-    }
     //[PHPCOMPRESSOR(remove,start)]
-
     /**
      * Automatic i18n dictionary file generation
      */
@@ -169,13 +163,13 @@ class i18n extends CompressableService
         }
 
     }
-    //[PHPCOMPRESSOR(remove,end)]
+
     /**
      * @param string $moduleId
      * @param array  $result
      * @param string $dictionaryPath
      */
-    public function createDictionary($moduleId, $result, $dictionaryPath)
+    protected function createDictionary($moduleId, $result, $dictionaryPath)
     {
         if (file_exists($dictionaryPath.'/Dictionary.php')) {
             unlink($dictionaryPath.'/Dictionary.php');
@@ -193,6 +187,7 @@ class i18n extends CompressableService
             ->endclass()
             ->write($dictionaryPath.'/Dictionary.php');
     }
+    //[PHPCOMPRESSOR(remove,end)]
 
     /**
      * @param \samson\core\Module $module
