@@ -35,6 +35,7 @@ class i18n extends CompressableService
     /** Regex pattern for search all matches */
     protected $patternSearch = '/\s+t\s*\(\s*[\'\"](?<key>[^\"\']+)[\'\"](,\s*(false|true)\s*,\s*(?<plural>\d+))?/';
 
+    /** @var Collection of translations grouped by modules */
     protected $moduleDictionary;
 
     /** @deprecated Now one single collection is used */
@@ -43,17 +44,59 @@ class i18n extends CompressableService
     //[PHPCOMPRESSOR(remove,start)]
     public function prepare()
     {
+        // Collection of found and loaded dictionaries
+        $loaded = array();
+
         /** @var \samson\core\Module $module Iterate all loaded core modules */
         foreach (self::$instances as $module) {
             // Iterate all module PHP files
             foreach ($module->resourceMap->classes as $path => $className) {
                 // Check if file name matches dictionary pattern
                 if (preg_match(self::DICTIONARY_PATTERN, $path)) {
-                    // Include new file that we think has a dictionary class
-                    include_once($path);
+                    // Create dictionary hashed name
+                    $loaded[$module->id()] = array($className, $path);
                 }
             }
         }
+
+        // Create a cached hashed full dictionary name
+        $cachedDictionary = md5(serialize($loaded)).'.php';
+
+        // If cached dictionary does not exists
+        if ($this->cache_refresh($cachedDictionary)) {
+            foreach ($loaded as $id => $data) {
+                $className = $data[0];
+                $path = $data[1];
+                // Include new file that we think has a dictionary class
+                include_once($path);
+
+                // Check if we have included IDictionary ancestor
+                if (isset($className{0}) && in_array(__NAMESPACE__ . '\IDictionary', class_implements($className))) {
+                    // Create dictionary instance
+                    $dictionary = new $className();
+                    // Iterate dictionary key => value localization data
+                    foreach ($dictionary->getDictionary() as $locale => $dict) {
+                        // Store module translation collection
+                        $this->moduleDictionary[$id][$locale] = $dict;
+
+                        // Gather every dictionary in  one collection grouped by locale
+                        $this->dictionary[$locale] = array_merge(
+                            isset($this->dictionary[$locale]) ? $this->dictionary[$locale] : array(),
+                            $dict
+                        );
+                    }
+                }
+            }
+
+            // Store dictionary to cache
+            file_put_contents(
+                $cachedDictionary,
+                '<?php function php_i18n_dictionary() { return ' . var_export($this->dictionary, true). ';}'
+            );
+        }
+
+        // Load generated dictionary
+        require $cachedDictionary;
     }
     //[PHPCOMPRESSOR(remove,end)]
 
@@ -62,28 +105,13 @@ class i18n extends CompressableService
     {
         parent::init();
 
-        // Iterate all loaded classes
-        foreach(get_declared_classes() as $className) {
-            // Check if we have included IDictionary ancestor
-            if (isset($className{0}) && in_array(__NAMESPACE__.'\IDictionary', class_implements($className))) {
-                // Create dictionary instance
-                $dictionary = new $className();
-                // Iterate dictionary key => value localization data
-                foreach ($dictionary->getDictionary() as $locale => $dict) {
-                    // Store module translation collection
-                    $this->moduleDictionary[$className][$locale] = $dict;
-
-                    // Gather every dictionary in  one collection grouped by locale
-                    $this->dictionary[$locale] = array_merge(
-                        isset($this->dictionary[$locale]) ? $this->dictionary[$locale] : array(),
-                        $dict
-                    );
-                }
-            }
+        // Call generated dictionary function
+        if (function_exists('php_i18n_dictionary')) {
+            $this->dictionary = php_i18n_dictionary();
         }
     }
-
     //[PHPCOMPRESSOR(remove,start)]
+
     /**
      * Automatic i18n dictionary file generation
      */
