@@ -38,37 +38,46 @@ class i18n extends CompressableService
     protected $moduleDictionary;
 
     /** @deprecated Now one single collection is used */
-    public $plural = array( 'en' => array() );
+    public $plural = array('en' => array());
+
+    //[PHPCOMPRESSOR(remove,start)]
+    public function prepare()
+    {
+        /** @var \samson\core\Module $module Iterate all loaded core modules */
+        foreach (self::$instances as $module) {
+            // Iterate all module PHP files
+            foreach ($module->resourceMap->classes as $path => $className) {
+                // Check if file name matches dictionary pattern
+                if (preg_match(self::DICTIONARY_PATTERN, $path)) {
+                    // Include new file that we think has a dictionary class
+                    include_once($path);
+                }
+            }
+        }
+    }
+    //[PHPCOMPRESSOR(remove,end)]
 
     /** {@inheritdoc} */
     public function init(array $params = array())
     {
         parent::init();
-        /** @var \samson\core\Module $module Iterate all loaded core modules */
-        foreach (self::$instances as $module) {
-            // Iterate all module PHP files
-            foreach ($module->resourceMap->classes as $path => $className) {
-//                var_dump($path);
-                // Check if file name matches dictionary pattern
-                if (preg_match(self::DICTIONARY_PATTERN, $path)) {
-                    // Include new file that we think has a dictionary class
-                    include_once($path);
 
-                    // Check if we have included IDictionary ancestor
-                    if (isset($className{0}) && in_array(__NAMESPACE__.'\IDictionary', class_implements($className))) {
-                        // Create dictionary instance
-                        $dictionary = new $className();
-                        // Iterate dictionary key => value localization data
-                        foreach ($dictionary->getDictionary() as $locale => $dict) {
-                            $this->moduleDictionary[$module->id][$locale] = $dict;
-                            // Gather every dictionary in  one collection grouped by locale
-                            $collection = array_merge(
-                                isset($this->dictionary[$locale]) ? $this->dictionary[$locale] : array(),
-                                $dict
-                            );
-                            $this->dictionary[$locale] = $collection;
-                        }
-                    }
+        // Iterate all loaded classes
+        foreach(get_declared_classes() as $className) {
+            // Check if we have included IDictionary ancestor
+            if (isset($className{0}) && in_array(__NAMESPACE__.'\IDictionary', class_implements($className))) {
+                // Create dictionary instance
+                $dictionary = new $className();
+                // Iterate dictionary key => value localization data
+                foreach ($dictionary->getDictionary() as $locale => $dict) {
+                    // Store module translation collection
+                    $this->moduleDictionary[$className][$locale] = $dict;
+
+                    // Gather every dictionary in  one collection grouped by locale
+                    $this->dictionary[$locale] = array_merge(
+                        isset($this->dictionary[$locale]) ? $this->dictionary[$locale] : array(),
+                        $dict
+                    );
                 }
             }
         }
