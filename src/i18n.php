@@ -42,7 +42,7 @@ class i18n extends CompressableService
     public $plural = array('en' => array());
 
     //[PHPCOMPRESSOR(remove,start)]
-    public function prepare()
+    public function prepareDictionary()
     {
         // Collection of found and loaded dictionaries
         $loaded = array();
@@ -105,6 +105,17 @@ class i18n extends CompressableService
     }
     //[PHPCOMPRESSOR(remove,end)]
 
+    /**
+     * Module initialization
+     * @param array $params
+     */
+    public function init(array $params = array())
+    {
+        //[PHPCOMPRESSOR(remove,start)]
+        $this->prepareDictionary();
+        //[PHPCOMPRESSOR(remove,end)]
+    }
+
     //[PHPCOMPRESSOR(remove,start)]
     /**
      * Automatic i18n dictionary file generation
@@ -112,6 +123,7 @@ class i18n extends CompressableService
     public function __generate()
     {
         s()->async(true);
+
         // Get all active locales
         foreach (SamsonLocale::$locales as $locale) {
             $keys[$locale] = array();
