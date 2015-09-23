@@ -282,7 +282,7 @@ class i18n extends CompressableService
     public function __meta()
     {
         // Set links in view
-        $this->html($this->renderMetaTags());
+        $this->html($this->renderMetaTags(SamsonLocale::current(), SamsonLocale::$defaultLocale, url()->text));
     }
 
     /**
@@ -348,38 +348,30 @@ class i18n extends CompressableService
         return $key;
     }
 
-    protected function renderMetaTags()
+    /**
+     * Render html <link rel="alternate"...> for localized resources for SEO
+     * @param string $href Current url path
+     * @return string Generated <link...> meta-tags
+     */
+    protected function renderMetaTags($current, $default, $href)
     {
-        $current = SamsonLocale::current();
-        $default = SamsonLocale::$defaultLocale;
-
         // Link tags
-        $link = '';
+        $metaHTML = '';
         foreach (SamsonLocale::get() as $locale) {
             // Render meta tags for other locales, not current
             if ($locale != $current) {
-                // Define language(lang) meta tag parameter
-                $language = ($locale == '') ? $default : $locale;
-                // Fix for Ukrainian locale name for language
-                $language = ($language != 'ua') ? $language : 'uk';
+                // Define language(lang) meta tag parameter, Fix for Ukrainian locale name for language
+                $language = ($locale == '') ? $default : (($locale != 'ua') ? $locale : 'uk');
+
+                // Remove current locale from href and remove all slashes
+                $href = __SAMSON_PROTOCOL.$_SERVER['HTTP_HOST'].'/'.$locale.'/'.str_ireplace($current.'/', '', $href);
 
                 // Build meta-tag
-                $link .= '<link rel="alternate" lang="' . $language . '" href="' . 'http://' . $_SERVER['HTTP_HOST'] . '/';
-
-
-                if ($current == 'ru') {
-                    $link .= $locale . '/' . url()->text . '">';
-                } else {
-                    if ($locale != 'ru') {
-                        $link .= $locale . '/' . substr(url()->text, strlen($current) + 1) . '">';
-                    } else {
-                        $link .= substr(url()->text, strlen($current) + 1) . '">';
-                    }
-                }
+                $metaHTML .= '<link rel="alternate" lang="' . $language . '" href="' . $href .'">';
             }
         }
 
-        return $link;
+        return $metaHTML;
     }
 
     /**
@@ -391,6 +383,7 @@ class i18n extends CompressableService
      */
     public function templateRenderer(&$html, &$parameters, &$module)
     {
-        $html = str_ireplace('</head>', '<meta test/></head>', $html);
+        $html = str_ireplace('</head>', $this->renderMetaTags(SamsonLocale::current(), SamsonLocale::$defaultLocale, url()->text).'</head>', $html);
+        $html = str_ireplace('<html>', '<html lang="'.SamsonLocale::current().'">', $html);
     }
 }
