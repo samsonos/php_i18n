@@ -3,6 +3,7 @@ namespace samsonphp\i18n;
 
 use samson\core\CompressableService;
 use samson\core\SamsonLocale;
+use samsonos\compressor\Module;
 use samsonphp\event\Event;
 
 /**
@@ -30,12 +31,12 @@ class i18n extends CompressableService
     public $isLocaleLinkText = false;
 
     /** Коллекция данных для перевода */
-    public $dictionary = array( 'en' => array() );
+    public $dictionary = array('en' => array());
 
     /** Regex pattern for search all matches */
     protected $patternSearch = '/\s+t\s*\(\s*[\'\"](?<key>[^\"\']+)[\'\"](,\s*(false|true)\s*,\s*(?<plural>\d+))?/';
 
-    /** @var Collection of translations grouped by modules */
+    /** @var array Collection of translations grouped by modules */
     protected $moduleDictionary;
 
     /** @deprecated Now one single collection is used */
@@ -60,7 +61,7 @@ class i18n extends CompressableService
         }
 
         // Create a cached hashed full dictionary name
-        $cachedDictionary = md5(serialize($loaded)).'.php';
+        $cachedDictionary = md5(serialize($loaded)) . '.php';
 
         // If cached dictionary does not exists
         if ($this->cache_refresh($cachedDictionary)) {
@@ -91,7 +92,7 @@ class i18n extends CompressableService
             // Store dictionary to cache
             file_put_contents(
                 $cachedDictionary,
-                '<?php function php_i18n_dictionary() { return ' . var_export($this->dictionary, true). ';}'
+                '<?php function php_i18n_dictionary() { return ' . var_export($this->dictionary, true) . ';}'
             );
         } else {
             // Load generated dictionary
@@ -103,20 +104,7 @@ class i18n extends CompressableService
             }
         }
     }
-    //[PHPCOMPRESSOR(remove,end)]
 
-    /**
-     * Module initialization
-     * @param array $params
-     */
-    public function init(array $params = array())
-    {
-        //[PHPCOMPRESSOR(remove,start)]
-        $this->prepareDictionary();
-        //[PHPCOMPRESSOR(remove,end)]
-    }
-
-    //[PHPCOMPRESSOR(remove,start)]
     /**
      * Automatic i18n dictionary file generation
      */
@@ -167,9 +155,9 @@ class i18n extends CompressableService
                     $final = $result;
                 }
 
-                trace('Generated dictionary for module: '. $module->id);
+                trace('Generated dictionary for module: ' . $module->id);
                 // Created dictionary file
-                $path = $modulePath.$this->id;
+                $path = $modulePath . $this->id;
                 $this->createDictionary($module->id, $final, $path);
             }
         }
@@ -178,28 +166,39 @@ class i18n extends CompressableService
 
     /**
      * @param string $moduleId
-     * @param array  $result
+     * @param array $result
      * @param string $dictionaryPath
      */
     protected function createDictionary($moduleId, $result, $dictionaryPath)
     {
-        if (file_exists($dictionaryPath.'/Dictionary.php')) {
-            unlink($dictionaryPath.'/Dictionary.php');
+        if (file_exists($dictionaryPath . '/Dictionary.php')) {
+            unlink($dictionaryPath . '/Dictionary.php');
             rmdir($dictionaryPath);
         }
         mkdir($dictionaryPath, 0775);
-        fopen($dictionaryPath.'/Dictionary.php', "w+");
+        fopen($dictionaryPath . '/Dictionary.php', "w+");
 
-        $generator = new \samson\core\Generator($moduleId."\\".'i18n');
+        $generator = new \samson\core\Generator($moduleId . "\\" . 'i18n');
         $generator->defclass('Dictionary', null, array('\samsonphp\i18n\IDictionary'))
             ->deffunction('getDictionary')
             ->newline('return ', 2)
             ->arrayvalue(array_filter($result))->text(';')
             ->endfunction()
             ->endclass()
-            ->write($dictionaryPath.'/Dictionary.php');
+            ->write($dictionaryPath . '/Dictionary.php');
     }
     //[PHPCOMPRESSOR(remove,end)]
+
+    /** @inheritdoc */
+    public function init(array $params = array())
+    {
+        //[PHPCOMPRESSOR(remove,start)]
+        $this->prepareDictionary();
+        //[PHPCOMPRESSOR(remove,end)]
+
+        // Subcribe for
+        Event::subscribe('core.rendered', array($this, 'templateRenderer'));
+    }
 
     /**
      * @param \samson\core\Module $module
@@ -214,6 +213,7 @@ class i18n extends CompressableService
             'php',
             'module'
         );
+
         $resources = array();
         foreach ($sources as $source) {
             foreach ($module->resourceMap->$source as $resource) {
@@ -225,6 +225,7 @@ class i18n extends CompressableService
                 $resources[] = $resource;
             }
         }
+
         return $resources;
     }
 
@@ -235,7 +236,7 @@ class i18n extends CompressableService
 
         $default = 'ru';
 
-        if (defined('DEFAULT_LOCALE')){
+        if (defined('DEFAULT_LOCALE')) {
             $default = DEFAULT_LOCALE;
         }
 
@@ -247,15 +248,15 @@ class i18n extends CompressableService
         $html = '';
         foreach (SamsonLocale::get() as $locale) {
             if ($current != $default) {
-                $currentUrlText = substr($urlText, strlen($current)+1);
+                $currentUrlText = substr($urlText, strlen($current) + 1);
             } else {
                 $currentUrlText = $urlText;
             }
 
             if ($locale == $default) {
-                $url = 'http://'.$httpHost.__SAMSON_BASE__.$currentUrlText;
+                $url = 'http://' . $httpHost . __SAMSON_BASE__ . $currentUrlText;
             } else {
-                $url = 'http://'.$httpHost.__SAMSON_BASE__.$locale.'/'.$currentUrlText;
+                $url = 'http://' . $httpHost . __SAMSON_BASE__ . $locale . '/' . $currentUrlText;
             }
             $localeName = '';
             if ($this->isLocaleLinkText) {
@@ -263,11 +264,11 @@ class i18n extends CompressableService
             }
             $html .= $this->view('list/item')
                 ->css(self::CSS_PREFIX)
-                ->locale($locale == SamsonLocale::DEF && SamsonLocale::DEF == ''? 'def' : $locale)
-                ->active($locale == $current ? self::CSS_PREFIX.'active':'')
+                ->locale($locale == SamsonLocale::DEF && SamsonLocale::DEF == '' ? 'def' : $locale)
+                ->active($locale == $current ? self::CSS_PREFIX . 'active' : '')
                 ->url($url)
                 ->name($localeName)
-            ->output();
+                ->output();
         }
 
         // Set locale list view
@@ -280,30 +281,8 @@ class i18n extends CompressableService
      */
     public function __meta()
     {
-        $current = SamsonLocale::current();
-        // Link tags
-        $link = '';
-        foreach (SamsonLocale::get() as $locale) {
-            if ($locale != $current) {
-                if ($locale == '') {
-                    $lang = 'ru';
-                } else {
-                    $lang = ($locale != 'ua') ? $locale : 'uk';
-                }
-                $link .= '<link rel="alternate" lang="'.$lang.'" href="'.'http://'.$_SERVER['HTTP_HOST'].'/';
-                if ($current == 'ru') {
-                    $link .= $locale.'/'.url()->text.'">';
-                } else {
-                    if ($locale != 'ru') {
-                        $link .= $locale.'/'.substr(url()->text, strlen($current)+1).'">';
-                    } else {
-                        $link .= substr(url()->text, strlen($current)+1).'">';
-                    }
-                }
-            }
-        }
         // Set links in view
-        $this->html($link);
+        $this->html($this->renderMetaTags());
     }
 
     /**
@@ -313,13 +292,13 @@ class i18n extends CompressableService
     protected function & findDictionary(& $key, $locale = null)
     {
         // If no locale for translation is specified - use current system locale
-        $locale = !isset( $locale ) ? locale() : $locale;
+        $locale = !isset($locale) ? locale() : $locale;
 
         // Remove whitespaces from key
         $key = trim($key);
 
         // Get pointer to locale dictionary
-        return  $this->dictionary[$locale];
+        return $this->dictionary[$locale];
     }
 
     /**
@@ -350,7 +329,7 @@ class i18n extends CompressableService
         // Retrieve dictionary by locale and modify key
         $dict = $this->findDictionary($key, $locale);
 
-        $translation = & $dict[$key];
+        $translation = &$dict[$key];
         // If translation value is available
         if (isset($translation) && (sizeof($translation) == 3) && !empty($translation[0])) {
             switch ($count % 20) {
@@ -367,5 +346,51 @@ class i18n extends CompressableService
         // No plural form is found - just return key
 
         return $key;
+    }
+
+    protected function renderMetaTags()
+    {
+        $current = SamsonLocale::current();
+        $default = SamsonLocale::$defaultLocale;
+
+        // Link tags
+        $link = '';
+        foreach (SamsonLocale::get() as $locale) {
+            // Render meta tags for other locales, not current
+            if ($locale != $current) {
+                // Define language(lang) meta tag parameter
+                $language = ($locale == '') ? $default : $locale;
+                // Fix for Ukrainian locale name for language
+                $language = ($language != 'ua') ? $language : 'uk';
+
+                // Build meta-tag
+                $link .= '<link rel="alternate" lang="' . $language . '" href="' . 'http://' . $_SERVER['HTTP_HOST'] . '/';
+
+
+                if ($current == 'ru') {
+                    $link .= $locale . '/' . url()->text . '">';
+                } else {
+                    if ($locale != 'ru') {
+                        $link .= $locale . '/' . substr(url()->text, strlen($current) + 1) . '">';
+                    } else {
+                        $link .= substr(url()->text, strlen($current) + 1) . '">';
+                    }
+                }
+            }
+        }
+
+        return $link;
+    }
+
+    /**
+     * Handle core main template rendered event to
+     * add SEO needed localization metatags to HTML markup
+     * @param string $html Rendered HTML template from core
+     * @param array $parameters Collection of data passed to current view
+     * @param Module $module Pointer to active core module
+     */
+    public function templateRenderer(&$html, &$parameters, &$module)
+    {
+        $html = str_ireplace('</head>', '<meta test/></head>', $html);
     }
 }
