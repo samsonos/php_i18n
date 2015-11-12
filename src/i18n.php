@@ -381,7 +381,7 @@ class i18n extends CompressableService
      * @param array $parameters Collection of data passed to current view
      * @param Module $module Pointer to active core module
      */
-    public function templateRenderer(&$html, &$parameters, &$module)
+    public function templateRenderer(&$html, $parameters, $module)
     {
         $html = str_ireplace('</head>', $this->renderMetaTags(SamsonLocale::current(), SamsonLocale::$defaultLocale, url()->text).'</head>', $html);
         $html = str_ireplace('<html>', '<html lang="'.SamsonLocale::current().'">', $html);
