@@ -16,7 +16,8 @@
     "samsonos/php_core": "1.*"
   },
   "require-dev": {
-    "phpunit/phpunit": "4.*"
+    "phpunit/phpunit": "4.*",
+    "samsonphp/generator": "*"
   },
   "license": "Open Software License (OSL) v 3.0",
   "homepage": "http://samsonphp.com/",

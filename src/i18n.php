@@ -178,7 +178,7 @@ class i18n extends CompressableService
         mkdir($dictionaryPath, 0775);
         fopen($dictionaryPath . '/Dictionary.php', "w+");
 
-        $generator = new \samson\core\Generator($moduleId . "\\" . 'i18n');
+        $generator = new \samsonphp\generator\Generator($moduleId . "\\" . 'i18n');
         $generator->defclass('Dictionary', null, array('\samsonphp\i18n\IDictionary'))
             ->deffunction('getDictionary')
             ->newline('return ', 2)
