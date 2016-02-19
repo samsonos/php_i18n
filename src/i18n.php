@@ -365,7 +365,8 @@ class i18n extends CompressableService
 
                 // Remove current locale from href and remove all slashes
                 $href = __SAMSON_PROTOCOL.$_SERVER['HTTP_HOST'].'/'.$locale.'/'.str_ireplace($current.'/', '', $href);
-
+                $href = str_replace($default.'/', '', $href);
+                
                 // Build meta-tag
                 $metaHTML .= '<link rel="alternate" lang="' . $language . '" href="' . $href .'">';
             }
