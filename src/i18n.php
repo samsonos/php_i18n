@@ -368,7 +368,7 @@ class i18n extends CompressableService
                 $href = str_replace($default.'/', '', $href);
                 
                 // Build meta-tag
-                $metaHTML .= '<link rel="alternate" lang="' . $language . '" href="' . $href .'">';
+                $metaHTML .= '<link rel="alternate" property="alternate glossary" lang="' . $language . '" href="' . $href .'">';
             }
         }
 
