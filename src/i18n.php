@@ -1,8 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 namespace samsonphp\i18n;
 
 use samson\core\CompressableService;
 use samson\core\SamsonLocale;
+use samsonframework\i18n\i18nInterface;
 use samsonos\compressor\Module;
 use samsonphp\event\Event;
 
@@ -11,9 +12,9 @@ use samsonphp\event\Event;
  *
  * @author Vitaly Iegorov <egorov@samsonos.com>
  * @author Alexandr Storchovyy <storchovyy@samsonos.com>
- * @version 1.0
+
  */
-class i18n extends CompressableService
+class i18n extends CompressableService implements I18nInterface
 {
     /** Generic CSS prefix*/
     const CSS_PREFIX = 'i18n-';
@@ -302,13 +303,9 @@ class i18n extends CompressableService
     }
 
     /**
-     * Translate(Перевести) фразу
-     *
-     * @param string $key Key for pluralization and translation
-     * @param string $locale Locale to use for translation
-     * @return string Translated key
+     * {@inheritdoc}
      */
-    public function translate($key, $locale = null)
+    public function translate(string $key, string $locale = null) : string
     {
         // Retrieve dictionary by locale and modify key
         $dict = $this->findDictionary($key, $locale);
@@ -318,13 +315,9 @@ class i18n extends CompressableService
     }
 
     /**
-     * Perform pluralization and translation of key
-     * @param string $key Key for pluralization and translation
-     * @param int $count Key quantity for pluralization
-     * @param string $locale Locale to use for translation
-     * @return string Pluralized and translated key
+     * {@inheritdoc}
      */
-    public function plural($key, $count, $locale = null)
+    public function plural(string $key, int $count, string $locale = null) : string
     {
         // Retrieve dictionary by locale and modify key
         $dict = $this->findDictionary($key, $locale);
