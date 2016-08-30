@@ -97,7 +97,7 @@ class i18n extends CompressableService implements I18nInterface
             );
         } else {
             // Load generated dictionary
-            require $cachedDictionary;
+            require_once($cachedDictionary);
 
             // Call generated dictionary function
             if (function_exists('php_i18n_dictionary')) {
