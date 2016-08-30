@@ -31,5 +31,6 @@
     "github-protocols": ["https"]
   },
   "extra": { 
-    "samsonframework_precontainer":"1"}
+    "samsonframework_precontainer":"1"
   }
+}
