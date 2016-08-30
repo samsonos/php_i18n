@@ -11,12 +11,11 @@
       "email": "egorov@samsonos.com"
     }
   ],
-  "minimum-stability": "dev",
   "require": {
     "samsonos/php_core": "1.*"
   },
   "require-dev": {
-    "phpunit/phpunit": "4.*",
+    "phpunit/phpunit": "5.*",
     "samsonphp/generator": "*"
   },
   "license": "Open Software License (OSL) v 3.0",
@@ -30,5 +29,7 @@
   },
   "config": {
     "github-protocols": ["https"]
+  },
+  "extra": { 
+    "samsonframework_precontainer":"1"}
   }
-}
