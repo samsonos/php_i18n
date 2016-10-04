@@ -3,7 +3,7 @@ namespace samsonphp\i18n;
 
 use samson\core\CompressableService;
 use samson\core\SamsonLocale;
-use samsonframework\i18n\i18nInterface;
+use samsonframework\i18n\I18nInterface;
 use samsonos\compressor\Module;
 use samsonphp\event\Event;
 
@@ -12,7 +12,6 @@ use samsonphp\event\Event;
  *
  * @author Vitaly Iegorov <egorov@samsonos.com>
  * @author Alexandr Storchovyy <storchovyy@samsonos.com>
-
  */
 class i18n extends CompressableService implements I18nInterface
 {
